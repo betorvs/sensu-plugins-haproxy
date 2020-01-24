@@ -12,7 +12,7 @@ Which is based on [Keep A Changelog](http://keepachangelog.com/)
 ### Added
 - Travis build automation to generate Sensu Asset tarballs that can be used n conjunction with Sensu provided ruby runtime assets and the Bonsai Asset Index
 - Require latest sensu-plugin for [Sensu Go support](https://github.com/sensu-plugins/sensu-plugin#sensu-go-enablement)
-- Add -k to enable insecure connections using ssl. Change from Net::HTTP.start to Net::HTTP.new in ruby check-haproxy.rb
+- New Flag: -k to enable insecure connections using ssl. Changed from Net::HTTP.start to Net::HTTP.new in ruby check-haproxy.rb and metrics-haproxy.rb.
 
 ### Changed
 - update changelog guidelines location (@majormoses)

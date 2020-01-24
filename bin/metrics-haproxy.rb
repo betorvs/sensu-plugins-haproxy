@@ -217,6 +217,12 @@ class HAProxyMetrics < Sensu::Plugin::Metric::CLI::Graphite
          boolean: true,
          default: false
 
+  option :insecure,
+         short: '-k',
+         boolean: true,
+         description: 'Enabling insecure connections',
+         default: false
+
   def acquire_stats
     uri = URI.parse(config[:connection])
 
@@ -226,13 +232,16 @@ class HAProxyMetrics < Sensu::Plugin::Metric::CLI::Graphite
       out = socket.read
       socket.close
     else
-      res = Net::HTTP.start(config[:connection], config[:port], use_ssl: config[:use_ssl]) do |http|
-        req = Net::HTTP::Get.new("/#{config[:path]};csv;norefresh")
-        unless config[:username].nil?
-          req.basic_auth config[:username], config[:password]
-        end
-        http.request(req)
+      http = Net::HTTP.new(config[:connection], config[:port], nil, nil)
+      req = Net::HTTP::Get.new("/#{config[:path]};csv;norefresh")
+
+      unless config[:username].nil?
+        req.basic_auth config[:username], config[:password]
       end
+      http.use_ssl = true if config[:use_ssl]
+      http.verify_mode = OpenSSL::SSL::VERIFY_NONE if config[:insecure]
+
+      res = http.request(req)
       out = res.body
     end
     return out
