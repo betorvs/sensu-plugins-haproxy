@@ -25,6 +25,7 @@
 
 require 'sensu-plugin/check/cli'
 require 'net/http'
+require 'net/https'
 require 'socket'
 require 'csv'
 require 'uri'
@@ -126,6 +127,11 @@ class CheckHAProxy < Sensu::Plugin::Check::CLI
          short: '-f',
          boolean: false,
          description: 'fail on missing service'
+  option :insecure,
+         short: '-k',
+         boolean: true,
+         description: 'Enabling insecure connections',
+         default: false
 
   def service_up?(svc)
     svc[:status].start_with?('UP') ||
@@ -206,13 +212,17 @@ class CheckHAProxy < Sensu::Plugin::Check::CLI
       out = srv.read
       srv.close
     else
-      res = Net::HTTP.start(config[:stats_source], config[:port], use_ssl: config[:use_ssl]) do |http|
-        req = Net::HTTP::Get.new("/#{config[:path]};csv;norefresh")
-        unless config[:username].nil?
-          req.basic_auth config[:username], config[:password]
-        end
-        http.request(req)
+      http = Net::HTTP.new(config[:stats_source], config[:port], nil, nil)
+      req = Net::HTTP::Get.new("/#{config[:path]};csv;norefresh")
+
+      unless config[:username].nil?
+        req.basic_auth config[:username], config[:password]
       end
+        
+      http.use_ssl = true if config[:use_ssl]
+      http.verify_mode = OpenSSL::SSL::VERIFY_NONE if config[:insecure]
+      res = http.request(req)
+
       unless res.code.to_i == 200
         unknown "Failed to fetch from #{config[:stats_source]}:#{config[:port]}/#{config[:path]}: #{res.code}"
       end
