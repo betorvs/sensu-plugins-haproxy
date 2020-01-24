@@ -3,7 +3,7 @@ MethodLength:
   Max: 200
 
 LineLength:
-  Max: 160
+  Max: 172
 
 AbcSize:
   Max: 100
@@ -31,3 +31,10 @@ Style/Documentation:
 
 Style/ZeroLengthPredicate:
   Enabled: false
+
+Metrics/BlockLength:
+  Exclude:
+    - 'Rakefile'
+    - '**/*.rake'
+    - 'test/*.rb'
+    - sensu-plugins-haproxy.gemspec

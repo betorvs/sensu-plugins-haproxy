@@ -218,7 +218,7 @@ class CheckHAProxy < Sensu::Plugin::Check::CLI
       unless config[:username].nil?
         req.basic_auth config[:username], config[:password]
       end
-        
+
       http.use_ssl = true if config[:use_ssl]
       http.verify_mode = OpenSSL::SSL::VERIFY_NONE if config[:insecure]
       res = http.request(req)
@@ -242,7 +242,7 @@ class CheckHAProxy < Sensu::Plugin::Check::CLI
         svc[:pxname] =~ regexp
         # #YELLOW
       end.reject do |svc| # rubocop: disable MultilineBlockChain
-        %w(FRONTEND BACKEND).include?(svc[:svname])
+        %w[FRONTEND BACKEND].include?(svc[:svname])
       end
     end.select do |svc|
       config[:include_maint] || !svc[:status].start_with?('MAINT')
